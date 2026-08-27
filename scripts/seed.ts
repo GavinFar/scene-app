@@ -3,7 +3,7 @@
  * empty on first run.
  *
  * Runs as a plain Node script outside the Expo bundler:
- *   npx tsx --env-file=.env scripts/seed.ts
+ *   npx tsx --env-file=.env --env-file=.env.seed scripts/seed.ts
  *
  * Uses the service-role key (EXPO_PRIVATE_SUPABASE_SECRET_KEY) to bypass RLS
  * and the auth admin API — profiles.id FKs to auth.users, so each seed
@@ -248,7 +248,9 @@ const SEED_PROFILES: SeedProfile[] = [
 function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
-    throw new Error(`Missing ${name} — run with: npx tsx --env-file=.env scripts/seed.ts`);
+    throw new Error(
+      `Missing ${name} — run with: npx tsx --env-file=.env --env-file=.env.seed scripts/seed.ts`
+    );
   }
   return value;
 }
