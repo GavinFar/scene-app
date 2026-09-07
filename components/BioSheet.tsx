@@ -1,12 +1,5 @@
-import { useEffect } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import Animated, {
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedScrollHandler } from 'react-native-reanimated';
 import type { SharedValue } from 'react-native-reanimated';
 import { MapPin } from 'lucide-react-native';
 
@@ -39,21 +32,14 @@ interface BioSheetProps {
 
 /**
  * The scrolling bio sheet over the fullscreen work media: identity header,
- * bio, connections, portfolio grid, reviews & recommendations. Springs up
- * from the card tap on mount (skipped under reduced motion).
+ * bio, connections, portfolio grid, reviews & recommendations.
+ *
+ * Renders at rest — no entrance transition. The sheet previously sprang up a
+ * quarter of the viewport on mount, which delayed the content behind an
+ * animation on every profile open.
  */
 export function BioSheet({ profile, scrollY, children }: BioSheetProps) {
   const { height } = useWindowDimensions();
-  const reducedMotion = useReducedMotion();
-
-  const entrance = useSharedValue(reducedMotion ? 1 : 0);
-  useEffect(() => {
-    entrance.value = withSpring(1, { damping: 18, stiffness: 140 });
-  }, [entrance]);
-
-  const entranceStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: (1 - entrance.value) * height * 0.25 }],
-  }));
 
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
@@ -69,7 +55,7 @@ export function BioSheet({ profile, scrollY, children }: BioSheetProps) {
 
   return (
     <Animated.ScrollView
-      style={[StyleSheet.absoluteFill, entranceStyle]}
+      style={StyleSheet.absoluteFill}
       onScroll={onScroll}
       scrollEventThrottle={16}
       showsVerticalScrollIndicator={false}
