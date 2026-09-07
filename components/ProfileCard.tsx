@@ -1,16 +1,31 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { MapPin } from 'lucide-react-native';
 
 import { CardBackground } from '@/components/CardBackground';
 import { ExperienceDots } from '@/components/ExperienceDots';
 import { RateTier } from '@/components/RateTier';
 import { RoleTag } from '@/components/RoleTag';
+import { ViewfinderBrackets } from '@/components/ViewfinderBrackets';
 import { Avatar } from '@/components/ui/Avatar';
 import { colors, radius, spacing, typography } from '@/constants/tokens';
 import type { FeedProfile } from '@/hooks/useProfiles';
 
 /** Card shows at most this many role rows — the rest live in the detail sheet. */
 const MAX_CARD_ROLES = 3;
+
+/**
+ * Scrim ramp, built from the ground colour so it stays palette-derived.
+ * A flat rectangle leaves a visible horizontal seam across the artwork; easing
+ * the alpha instead means the overlay has no edge to notice.
+ */
+const SCRIM_COLORS = [
+  `${colors.background}00`,
+  `${colors.background}8C`,
+  `${colors.background}E6`,
+  colors.background,
+] as const;
+const SCRIM_STOPS = [0, 0.38, 0.72, 1] as const;
 
 interface ProfileCardProps {
   profile: FeedProfile;
@@ -44,8 +59,14 @@ export function ProfileCard({ profile, width, height, isActive, onPress }: Profi
         height={height}
         isActive={isActive}
       />
+      <LinearGradient
+        colors={SCRIM_COLORS}
+        locations={SCRIM_STOPS}
+        pointerEvents="none"
+        style={styles.scrim}
+      />
+      <ViewfinderBrackets isActive={isActive} />
       <View style={styles.footer}>
-        <View style={styles.scrim} pointerEvents="none" />
         <View style={styles.footerRow}>
           <View style={styles.identity}>
             <Avatar
@@ -104,13 +125,11 @@ const styles = StyleSheet.create({
   },
   scrim: {
     position: 'absolute',
-    top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: colors.background,
-    // Translucent panel keeps the overlay text legible on any media.
-    opacity: 0.55,
+    // Runs well above the footer so the ramp has room to reach transparent.
+    height: '55%',
   },
   footerRow: {
     flexDirection: 'row',
