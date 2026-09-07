@@ -4,27 +4,36 @@ import type { TextStyle } from 'react-native';
 // Locked in the build spec: components reference these and never hardcode
 // hex values or magic numbers.
 
+/**
+ * "Slate" palette — the register of a DIT cart, a light meter, a grading
+ * suite. Neutrals carry a blue bias rather than sitting on pure grey, so the
+ * ground reads as chosen equipment rather than default dark mode.
+ *
+ * The accent is the only saturated colour in the set and is spent sparingly:
+ * active nav, filled experience dots, primary CTAs. Everything else is
+ * neutral, which is what lets other people's photography dominate the feed.
+ */
 export const colors = {
   /** App background */
-  background: '#0D0D0D',
+  background: '#0F1215',
   /** Cards, sheets, modals */
-  surface: '#1A1A1A',
+  surface: '#171B20',
   /** Elevated surfaces, inputs */
-  surfaceRaised: '#242424',
+  surfaceRaised: '#202730',
   /** CTAs, active states, highlights */
-  accent: '#FF3B30',
+  accent: '#5B9DD9',
   /** Accent backgrounds, badges (accent at 12% alpha) */
-  accentMuted: '#FF3B3020',
+  accentMuted: '#5B9DD920',
   /** Primary text */
-  text: '#FFFFFF',
+  text: '#EDF1F5',
   /** Secondary text, placeholders */
-  textMuted: '#666666',
+  textMuted: '#78828E',
   /** Dividers, input borders */
-  border: '#2A2A2A',
+  border: '#262E38',
   /** Confirmations, verified badges */
-  success: '#34C759',
+  success: '#57B894',
   /** Errors, destructive actions */
-  error: '#FF453A',
+  error: '#E0645C',
 } as const;
 
 /** Font family names as registered with expo-font in app/_layout.tsx. */
