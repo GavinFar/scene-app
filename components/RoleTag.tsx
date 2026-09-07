@@ -1,6 +1,7 @@
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import { Badge } from '@/components/ui/Badge';
+import type { ComponentProps } from 'react';
 
 interface RoleTagProps {
   /** Role slug — fallback label source when no name is supplied. */
@@ -12,12 +13,14 @@ interface RoleTagProps {
    * role name carries one, otherwise the name minus any parenthetical.
    */
   compact?: boolean;
+  /** `lead` marks the role the profile leads with. */
+  tone?: ComponentProps<typeof Badge>['tone'];
   style?: StyleProp<ViewStyle>;
 }
 
 /** Role slug → display-label badge. */
-export function RoleTag({ slug, name, compact = false, style }: RoleTagProps) {
-  return <Badge label={roleLabel(slug, name, compact)} style={style} />;
+export function RoleTag({ slug, name, compact = false, tone, style }: RoleTagProps) {
+  return <Badge label={roleLabel(slug, name, compact)} tone={tone} style={style} />;
 }
 
 function roleLabel(slug: string, name: string | null | undefined, compact: boolean): string {

@@ -11,8 +11,18 @@ import { Avatar } from '@/components/ui/Avatar';
 import { colors, radius, spacing, typography } from '@/constants/tokens';
 import type { FeedProfile } from '@/hooks/useProfiles';
 
-/** Card shows at most this many role rows — the rest live in the detail sheet. */
-const MAX_CARD_ROLES = 3;
+/** Named badges on the card; anything beyond becomes a "+N" count. */
+const MAX_CARD_ROLES = 2;
+
+/**
+ * Show experience dots against the lead role.
+ *
+ * Flip to `false` for the badges-only card — the two layouts differ by this
+ * and nothing else, so the choice stays a one-line change rather than a
+ * rewrite. Secondary roles never carry dots on the card either way; their
+ * experience lives in the detail sheet.
+ */
+const SHOW_LEAD_EXPERIENCE = true;
 
 /**
  * Scrim ramp, built from the ground colour so it stays palette-derived.
@@ -38,12 +48,18 @@ interface ProfileCardProps {
 }
 
 /**
- * The work-first card (spec layout): work/reel fills the background, face
- * photo lower-left, role rows with experience dots to its right, name and
- * city under the face, rate tier bottom-right.
+ * The work-first card: work/reel fills the background, identity stacked at the
+ * lower left, and a single role line beneath it.
+ *
+ * Identity stacks rather than splitting into two columns so the role line gets
+ * the card's full width — badges read left to right there, where the old
+ * right-hand column was too narrow for them. Three stacked dot-and-badge rows
+ * covered roughly half the artwork; this covers a third of it.
  */
 export function ProfileCard({ profile, width, height, isActive, onPress }: ProfileCardProps) {
-  const roles = profile.roles.slice(0, MAX_CARD_ROLES);
+  const [leadRole] = profile.roles;
+  const namedRoles = profile.roles.slice(0, MAX_CARD_ROLES);
+  const overflowCount = profile.roles.length - namedRoles.length;
 
   return (
     <Pressable
@@ -67,39 +83,43 @@ export function ProfileCard({ profile, width, height, isActive, onPress }: Profi
       />
       <ViewfinderBrackets isActive={isActive} />
       <View style={styles.footer}>
-        <View style={styles.footerRow}>
-          <View style={styles.identity}>
-            <Avatar
-              publicId={profile.face_public_id}
-              name={profile.display_name}
-              size={64}
-              bordered
-            />
-            <Text style={styles.name} numberOfLines={1}>
-              {profile.display_name}
+        <Avatar
+          publicId={profile.face_public_id}
+          name={profile.display_name}
+          size={48}
+          bordered
+        />
+        <Text style={styles.name} numberOfLines={1}>
+          {profile.display_name}
+        </Text>
+        {profile.city ? (
+          <View style={styles.cityRow}>
+            <MapPin color={colors.textMuted} size={12} />
+            <Text style={styles.city} numberOfLines={1}>
+              {profile.city.name}, {profile.city.state}
             </Text>
-            {profile.city ? (
-              <View style={styles.cityRow}>
-                <MapPin color={colors.textMuted} size={12} />
-                <Text style={styles.city} numberOfLines={1}>
-                  {profile.city.name}, {profile.city.state}
-                </Text>
-              </View>
-            ) : null}
           </View>
-          <View style={styles.work}>
-            {roles.map((entry) => (
-              <View key={entry.role.slug} style={styles.roleRow}>
-                <ExperienceDots experience={entry.experience} />
-                <RoleTag slug={entry.role.slug} name={entry.role.name} compact />
-              </View>
+        ) : null}
+
+        <View style={styles.roleLine}>
+          <View style={styles.roles}>
+            {SHOW_LEAD_EXPERIENCE && leadRole ? (
+              <ExperienceDots experience={leadRole.experience} size={6} />
+            ) : null}
+            {namedRoles.map((entry, index) => (
+              <RoleTag
+                key={entry.role.slug}
+                slug={entry.role.slug}
+                name={entry.role.name}
+                tone={index === 0 ? 'lead' : 'neutral'}
+                compact
+              />
             ))}
-            {profile.rate_tier ? (
-              <View style={styles.rate}>
-                <RateTier tier={profile.rate_tier} />
-              </View>
+            {overflowCount > 0 ? (
+              <Text style={styles.overflow}>+{overflowCount}</Text>
             ) : null}
           </View>
+          {profile.rate_tier ? <RateTier tier={profile.rate_tier} /> : null}
         </View>
       </View>
     </Pressable>
@@ -128,21 +148,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    // Runs well above the footer so the ramp has room to reach transparent.
-    height: '55%',
-  },
-  footerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    gap: spacing.md,
-  },
-  identity: {
-    flexShrink: 1,
-    gap: spacing.xs,
+    // Runs above the footer so the ramp has room to reach transparent. Shorter
+    // than the old overlay because the footer itself is now a third the height.
+    height: '38%',
   },
   name: {
-    ...typography.xl,
+    ...typography.lg,
     color: colors.text,
     marginTop: spacing.sm,
   },
@@ -155,16 +166,23 @@ const styles = StyleSheet.create({
     ...typography.sm,
     color: colors.textMuted,
   },
-  work: {
-    alignItems: 'flex-end',
-    gap: spacing.sm,
+  roleLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    marginTop: spacing.md,
   },
-  roleRow: {
+  roles: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
+    // Badges are abbreviations, so clipping beats wrapping to a second line.
+    flexShrink: 1,
+    overflow: 'hidden',
   },
-  rate: {
-    marginTop: spacing.xs,
+  overflow: {
+    ...typography.mono,
+    color: colors.textMuted,
   },
 });

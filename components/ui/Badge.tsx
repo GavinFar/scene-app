@@ -3,7 +3,12 @@ import type { StyleProp, ViewStyle } from 'react-native';
 
 import { colors, radius, spacing, typography } from '@/constants/tokens';
 
-type BadgeTone = 'neutral' | 'accent';
+/**
+ * `lead` marks the role a profile is primarily known for — accent edge, plain
+ * label. Distinct from `accent`, which fills and recolours the whole pill and
+ * would shout on a card that already carries several badges.
+ */
+type BadgeTone = 'neutral' | 'accent' | 'lead';
 
 interface BadgeProps {
   label: string;
@@ -46,5 +51,10 @@ const toneStyles: Record<BadgeTone, ViewStyle> = {
   },
   accent: {
     backgroundColor: colors.accentMuted,
+  },
+  lead: {
+    backgroundColor: colors.surfaceRaised,
+    borderWidth: 1,
+    borderColor: colors.accent,
   },
 };
