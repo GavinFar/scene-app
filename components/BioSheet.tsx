@@ -12,8 +12,14 @@ import { RoleTag } from '@/components/RoleTag';
 import { colors, radius, spacing, typography } from '@/constants/tokens';
 import type { ProfileDetail } from '@/hooks/useProfile';
 
-/** Share of the viewport the work media keeps before the sheet begins. */
-const MEDIA_PEEK_RATIO = 0.52;
+/**
+ * Share of the viewport the work media keeps before the sheet begins.
+ *
+ * The full viewport: the work is the reason for the screen, so it gets all of
+ * it and the sheet waits below the fold. At 0.52 the sheet permanently covered
+ * the lower half of the piece with no way to push it further down.
+ */
+const MEDIA_PEEK_RATIO = 1;
 
 /** Sheet gutter — PortfolioGrid needs it to size tiles exactly. */
 const SHEET_PADDING = spacing.xl;
@@ -61,7 +67,17 @@ export function BioSheet({ profile, scrollY, children }: BioSheetProps) {
       showsVerticalScrollIndicator={false}
     >
       {/* Transparent spacer — the work media shows through until you scroll. */}
-      <View style={{ height: Math.round(height * MEDIA_PEEK_RATIO) }} pointerEvents="none" />
+      <View style={{ height: Math.round(height * MEDIA_PEEK_RATIO) }} pointerEvents="none">
+        {/*
+          With the sheet below the fold there is nothing else indicating the
+          profile exists, so the spacer carries a grabber. It scrolls away with
+          the spacer, which is the right moment for it to go.
+        */}
+        <View style={styles.pullHint}>
+          <View style={styles.pullHandle} />
+          <Text style={styles.pullLabel}>{profile.display_name}</Text>
+        </View>
+      </View>
 
       <View style={[styles.sheet, { minHeight: height }]}>
         <View style={styles.handle} />
@@ -156,6 +172,31 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 const styles = StyleSheet.create({
+  pullHint: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: spacing['3xl'],
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  pullHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: radius.full,
+    backgroundColor: colors.text,
+    opacity: 0.55,
+  },
+  pullLabel: {
+    ...typography.mono,
+    color: colors.text,
+    // The work behind can be any exposure, so the label carries its own ground.
+    backgroundColor: `${colors.background}B3`,
+    overflow: 'hidden',
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
   sheet: {
     backgroundColor: colors.surface,
     borderTopLeftRadius: radius.xl,

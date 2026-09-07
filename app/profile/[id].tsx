@@ -20,6 +20,14 @@ import { colors, radius, spacing } from '@/constants/tokens';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuthStore } from '@/store/auth';
 
+/**
+ * Where the loading placeholder sits. Deliberately *not* BioSheet's
+ * MEDIA_PEEK_RATIO: the real sheet rests below the fold, and there is no work
+ * media to peek at yet while the profile is still loading, so anchoring the
+ * skeleton to that ratio would push it off-screen and leave a blank screen.
+ */
+const SKELETON_TOP_RATIO = 0.52;
+
 export default function ProfileDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { width, height } = useWindowDimensions();
@@ -46,7 +54,7 @@ export default function ProfileDetailScreen() {
   let body: React.ReactNode;
   if (profile.isPending) {
     body = (
-      <View style={[styles.skeletonSheet, { top: Math.round(height * 0.52) }]}>
+      <View style={[styles.skeletonSheet, { top: Math.round(height * SKELETON_TOP_RATIO) }]}>
         <Skeleton style={styles.skeletonName} />
         <Skeleton style={styles.skeletonLine} />
         <Skeleton style={styles.skeletonLine} />
