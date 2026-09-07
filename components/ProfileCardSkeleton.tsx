@@ -9,22 +9,20 @@ interface ProfileCardSkeletonProps {
 }
 
 /**
- * Loading placeholder mirroring the ProfileCard footer layout (spec #12) —
- * the block sizes approximate the avatar, name, city, and role rows.
+ * Loading placeholder mirroring the ProfileCard footer — block sizes track the
+ * avatar, name, city and the single role line. Keep these in step with
+ * ProfileCard's layout or the card visibly jumps when real data lands.
  */
 export function ProfileCardSkeleton({ width, height }: ProfileCardSkeletonProps) {
   return (
     <View style={[styles.card, { width, height }]}>
       <View style={styles.footer}>
-        <View style={styles.identity}>
-          <Skeleton style={styles.face} />
-          <Skeleton style={styles.name} />
-          <Skeleton style={styles.city} />
-        </View>
-        <View style={styles.work}>
-          <Skeleton style={styles.roleRow} />
-          <Skeleton style={styles.roleRow} />
-          <Skeleton style={styles.roleRow} />
+        <Skeleton style={styles.face} />
+        <Skeleton style={styles.name} />
+        <Skeleton style={styles.city} />
+        <View style={styles.roleLine}>
+          <Skeleton style={styles.roleBadge} />
+          <Skeleton style={styles.roleBadge} />
         </View>
       </View>
     </View>
@@ -43,33 +41,29 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     padding: spacing.lg,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    gap: spacing.md,
-  },
-  identity: {
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   face: {
-    width: 64,
-    height: 64,
+    width: 48,
+    height: 48,
     borderRadius: radius.full,
   },
   name: {
     width: 140,
-    height: 22,
+    height: 20,
+    marginTop: spacing.sm,
   },
   city: {
     width: 90,
     height: 14,
   },
-  work: {
-    alignItems: 'flex-end',
+  roleLine: {
+    flexDirection: 'row',
     gap: spacing.sm,
+    marginTop: spacing.md,
   },
-  roleRow: {
-    width: 110,
+  roleBadge: {
+    width: 54,
     height: 18,
   },
 });
